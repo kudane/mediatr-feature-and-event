@@ -2,16 +2,27 @@
 
 public class GreetingFeature
 {
-    public class Command : IRequest<string>
+    public class Command : IRequest<Response>
     {
         public string Message { get; set; } = null!;
     }
 
-    public class Handler : IRequestHandler<Command, string>
+    public class Response : WithMessageEvent
     {
-        public async Task<string> Handle(Command command, CancellationToken cancellationToken)
+        public string GreetingText { get; set; } = null!;
+    }
+
+    public class Handler : IRequestHandler<Command, Response>
+    {
+        public async Task<Response> Handle(Command command, CancellationToken cancellationToken)
         {
-            return await Task.FromResult(command.Message);
+            var greeting = new Response { GreetingText = command.Message };
+
+            var alermEvent = new AlarmEvent.Message(){Prop1 = command.Message};
+
+            greeting.AddEvent(alermEvent);
+
+            return await Task.FromResult(greeting);
         }
     }
 }
